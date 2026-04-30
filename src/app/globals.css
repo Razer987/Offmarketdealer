@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-black: #0A0A0A;
+  --color-dark: #111111;
+  --color-charcoal: #1A1A1A;
+  --color-muted: #2A2A2A;
+  --color-border: #333333;
+  --color-gold: #C9A84C;
+  --color-gold-light: #E5C572;
+  --color-gold-dark: #A8892F;
+  --color-cream: #F5F0E8;
+  --color-cream-dark: #E8E0D0;
+  --color-silver: #9CA3AF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-black);
+  color: var(--color-cream);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-black);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-dark);
+}
+
+/* Focus ring — gold instead of default blue */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Thin gold divider */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+/* Gold text gradient */
+.text-gold-gradient {
+  background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Premium card */
+.card-premium {
+  background: var(--color-dark);
+  border: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
+}
+.card-premium:hover {
+  border-color: var(--color-gold-dark);
+}
+
+/* Input base */
+.input-premium {
+  background: var(--color-charcoal);
+  border: 1px solid var(--color-border);
+  color: var(--color-cream);
+  transition: border-color 0.2s ease;
+}
+.input-premium:focus {
+  border-color: var(--color-gold);
+  outline: none;
+}
+.input-premium::placeholder {
+  color: var(--color-silver);
+}
+
+/* Button gold */
+.btn-gold {
+  background: var(--color-gold);
+  color: var(--color-black);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.btn-gold:hover {
+  background: var(--color-gold-light);
+}
+.btn-gold:active {
+  transform: scale(0.98);
+}
+
+/* Button outline gold */
+.btn-outline-gold {
+  background: transparent;
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.btn-outline-gold:hover {
+  background: var(--color-gold);
+  color: var(--color-black);
+}
