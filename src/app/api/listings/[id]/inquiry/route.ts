@@ -41,10 +41,10 @@ export async function POST(
     if (adminEmail) {
       await sendEmail({
         to: adminEmail,
-        subject: `Neue Anfrage: ${listing.brand} ${listing.model} ${listing.year}`,
+        subject: `Neue Anfrage: ${listing.title}`,
         html: newInquiryTemplate({
           username: user.username,
-          type: `Listing-Anfrage: ${listing.brand} ${listing.model}`,
+          type: `Listing-Anfrage: ${listing.title}`,
           message: data.message,
           contactPhone: data.contactPhone,
         }),

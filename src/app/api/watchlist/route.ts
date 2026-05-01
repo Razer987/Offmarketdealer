@@ -14,10 +14,8 @@ export async function GET(req: NextRequest) {
         listing: {
           select: {
             id: true,
-            brand: true,
-            model: true,
-            year: true,
-            conditionRating: true,
+            category: true,
+            title: true,
             priceRangeMin: true,
             priceRangeMax: true,
             status: true,

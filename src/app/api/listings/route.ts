@@ -16,19 +16,13 @@ export async function GET(req: NextRequest) {
       status: { in: ['ACTIVE', 'RESERVED'] },
     };
 
-    if (filters.brand) where.brand = { contains: filters.brand, mode: 'insensitive' };
-    if (filters.yearMin || filters.yearMax) {
-      where.year = {};
-      if (filters.yearMin) (where.year as Prisma.IntFilter).gte = filters.yearMin;
-      if (filters.yearMax) (where.year as Prisma.IntFilter).lte = filters.yearMax;
-    }
+    if (filters.category) where.category = filters.category;
     if (filters.priceMax) where.priceRangeMin = { lte: new Prisma.Decimal(filters.priceMax) };
-    if (filters.condition) where.conditionRating = filters.condition;
     if (filters.search) {
       where.OR = [
-        { brand: { contains: filters.search, mode: 'insensitive' } },
-        { model: { contains: filters.search, mode: 'insensitive' } },
+        { title: { contains: filters.search, mode: 'insensitive' } },
         { teaserTitle: { contains: filters.search, mode: 'insensitive' } },
+        { teaserDescription: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
 
@@ -37,14 +31,11 @@ export async function GET(req: NextRequest) {
         where,
         select: {
           id: true,
-          brand: true,
-          model: true,
-          year: true,
-          conditionRating: true,
+          category: true,
+          title: true,
           priceRangeMin: true,
           priceRangeMax: true,
           priceCurrency: true,
-          mileageRange: true,
           highlights: true,
           status: true,
           publishedAt: true,

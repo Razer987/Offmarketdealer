@@ -85,10 +85,13 @@ export function middleware(request: NextRequest) {
     return addSecurityHeaders(NextResponse.next());
   }
 
-  // Admin paths — require admin token (login page is public)
+  // Admin paths — require admin token (login page + login API are public)
   if (isAdminPath(pathname) || isAdminApiPath(pathname)) {
     const adminLoginPath = `/${ADMIN_PATH_SECRET}/login`;
     if (pathname === adminLoginPath || pathname.startsWith(`${adminLoginPath}/`)) {
+      return addSecurityHeaders(NextResponse.next());
+    }
+    if (pathname === '/api/admin/login') {
       return addSecurityHeaders(NextResponse.next());
     }
     const adminToken = request.cookies.get(COOKIE_ADMIN_TOKEN);

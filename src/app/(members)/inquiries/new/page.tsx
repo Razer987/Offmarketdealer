@@ -68,23 +68,19 @@ export default function NewInquiryPage() {
             </div>
 
             {type === 'ASSESSMENT_REQUEST' && (
-              <div className="grid grid-cols-2 gap-4">
-                <Input {...register('vehicleBrand')} label="Marke" error={errors.vehicleBrand?.message} />
-                <Input {...register('vehicleModel')} label="Modell" error={errors.vehicleModel?.message} />
-                <Input
-                  {...register('vehicleYear', { valueAsNumber: true })}
-                  label="Baujahr"
-                  type="number"
-                  error={errors.vehicleYear?.message}
-                />
-                <Input
-                  {...register('vehicleMileage', { valueAsNumber: true })}
-                  label="Kilometerstand"
-                  type="number"
-                  error={errors.vehicleMileage?.message}
-                />
-                <Input {...register('vehicleVin')} label="FIN (optional)" error={errors.vehicleVin?.message} />
-                <Input {...register('vehicleLocation')} label="Standort" error={errors.vehicleLocation?.message} />
+              <div className="grid grid-cols-1 gap-4">
+                <Input {...register('objectTitle')} label="Objekt-Bezeichnung (z.B. Ferrari F40, Wohnung München)" error={errors.objectTitle?.message} />
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-body uppercase tracking-widest text-brand-silver">
+                    Weitere Details (optional)
+                  </label>
+                  <textarea
+                    {...register('objectDetails')}
+                    rows={3}
+                    placeholder="Zustand, Baujahr, Standort, Besonderheiten..."
+                    className="input-premium w-full rounded-none px-4 py-3 text-sm font-body resize-none"
+                  />
+                </div>
               </div>
             )}
 

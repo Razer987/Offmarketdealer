@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         take: 5,
         include: {
           user: { select: { username: true } },
-          listing: { select: { brand: true, model: true } },
+          listing: { select: { category: true, title: true } },
         },
       }),
     ]);

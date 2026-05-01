@@ -23,7 +23,7 @@ async function getDashboardData() {
       take: 5,
       include: {
         user: { select: { username: true } },
-        listing: { select: { brand: true, model: true } },
+        listing: { select: { category: true, title: true } },
       },
     }),
     prisma.auditLog.findMany({
@@ -83,7 +83,7 @@ export default async function AdminDashboard() {
                         <p className="text-sm text-brand-cream font-body">{inq.user.username}</p>
                         {inq.listing && (
                           <p className="text-xs text-brand-silver font-body">
-                            {inq.listing.brand} {inq.listing.model}
+                            {inq.listing.title}
                           </p>
                         )}
                       </div>
