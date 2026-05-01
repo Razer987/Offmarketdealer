@@ -20,14 +20,11 @@ async function getWatchlist() {
       listing: {
         select: {
           id: true,
-          brand: true,
-          model: true,
-          year: true,
-          conditionRating: true,
+          title: true,
+          category: true,
           priceRangeMin: true,
           priceRangeMax: true,
           priceCurrency: true,
-          mileageRange: true,
           highlights: true,
           status: true,
         },
@@ -52,9 +49,9 @@ export default async function WatchlistPage() {
 
         {items.length === 0 ? (
           <div className="text-center py-24 border border-brand-border">
-            <p className="text-brand-silver font-body mb-4">Noch keine Fahrzeuge auf der Merkliste.</p>
+            <p className="text-brand-silver font-body mb-4">Noch keine Objekte auf der Merkliste.</p>
             <Link href="/listings" className="text-brand-gold font-body text-sm hover:text-brand-gold-light transition-colors">
-              Alle Fahrzeuge ansehen →
+              Alle Objekte ansehen →
             </Link>
           </div>
         ) : (

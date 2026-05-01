@@ -84,7 +84,7 @@ export async function DELETE(
         entityId: params.id,
         ipAddress: req.headers.get('x-forwarded-for') ?? 'unknown',
         userAgent: req.headers.get('user-agent') ?? '',
-        details: { brand: existing.brand, model: existing.model },
+        details: { category: existing.category, title: existing.title },
       },
     });
 

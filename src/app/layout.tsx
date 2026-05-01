@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Off-Market Automobiles — Exklusive Fahrzeuge',
-  description: 'Privater Marktplatz für außergewöhnliche Fahrzeuge. Exklusiver Zugang für eingeladene Mitglieder.',
+  title: 'Arcanum — Privates Off-Market Netzwerk',
+  description: 'Exklusiver Zugang zu außergewöhnlichen Objekten. Nur auf persönliche Einladung.',
   robots: { index: false, follow: false },
 };
 

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { Badge } from '@/components/ui/Badge';
 import { InquiryForm } from '@/components/inquiries/InquiryForm';
 import { formatPrice } from '@/lib/utils/format';
-import { CONDITION_LABELS } from '@/lib/utils/constants';
+import { CATEGORY_LABELS } from '@/lib/utils/constants';
 
 interface Props {
   params: { id: string };
@@ -14,15 +14,8 @@ async function getListing(id: string) {
     where: { id, status: { in: ['ACTIVE', 'RESERVED'] } },
     select: {
       id: true,
-      brand: true,
-      model: true,
-      year: true,
-      engineDisplacement: true,
-      enginePower: true,
-      acceleration: true,
-      topSpeed: true,
-      mileageRange: true,
-      conditionRating: true,
+      category: true,
+      title: true,
       priceRangeMin: true,
       priceRangeMax: true,
       priceCurrency: true,
@@ -37,16 +30,6 @@ export default async function ListingDetailPage({ params }: Props) {
   const listing = await getListing(params.id);
   if (!listing) notFound();
 
-  const specs = [
-    { label: 'Baujahr', value: String(listing.year) },
-    { label: 'Zustand', value: CONDITION_LABELS[listing.conditionRating] ?? listing.conditionRating },
-    listing.mileageRange ? { label: 'Laufleistung', value: listing.mileageRange } : null,
-    listing.engineDisplacement ? { label: 'Hubraum', value: `${(listing.engineDisplacement / 1000).toFixed(1)} l` } : null,
-    listing.enginePower ? { label: 'Leistung', value: `${listing.enginePower} PS` } : null,
-    listing.acceleration ? { label: '0–100 km/h', value: `${listing.acceleration} s` } : null,
-    listing.topSpeed ? { label: 'Vmax', value: `${listing.topSpeed} km/h` } : null,
-  ].filter(Boolean) as { label: string; value: string }[];
-
   return (
     <div className="px-6 py-16">
       <div className="max-w-7xl mx-auto">
@@ -58,10 +41,10 @@ export default async function ListingDetailPage({ params }: Props) {
                 <Badge variant="yellow" className="mb-4">Reserviert</Badge>
               )}
               <p className="text-xs font-body uppercase tracking-widest text-brand-gold mb-2">
-                {listing.year}
+                {CATEGORY_LABELS[listing.category] ?? listing.category}
               </p>
               <h1 className="font-display text-5xl text-brand-cream mb-4">
-                {listing.brand} {listing.model}
+                {listing.title}
               </h1>
               <p className="font-display text-2xl text-brand-gold">
                 {formatPrice(
@@ -73,21 +56,6 @@ export default async function ListingDetailPage({ params }: Props) {
             </div>
 
             <div className="gold-divider" />
-
-            {/* Specs grid */}
-            <div>
-              <h2 className="font-display text-2xl text-brand-cream mb-6">Technische Daten</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-brand-border">
-                {specs.map((spec) => (
-                  <div key={spec.label} className="bg-brand-dark p-5">
-                    <p className="text-xs font-body uppercase tracking-widest text-brand-silver mb-1">
-                      {spec.label}
-                    </p>
-                    <p className="text-brand-cream font-body">{spec.value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* Description */}
             <div>
@@ -117,7 +85,7 @@ export default async function ListingDetailPage({ params }: Props) {
                 Hinweis
               </p>
               <p className="text-sm text-brand-silver font-body leading-relaxed">
-                Aus Diskretionsgründen werden keine Fahrzeugfotos veröffentlicht.
+                Aus Diskretionsgründen werden keine Fotos veröffentlicht.
                 Detaillierte Dokumentation und Besichtigung nach erfolgter Kontaktaufnahme.
               </p>
             </div>

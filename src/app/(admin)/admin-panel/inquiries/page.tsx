@@ -11,7 +11,7 @@ const statusBadge: Record<string, 'gold' | 'silver' | 'green' | 'red' | 'yellow'
 };
 
 const typeLabel: Record<string, string> = {
-  LISTING_INQUIRY: 'Fahrzeuganfrage',
+  LISTING_INQUIRY: 'Anfrage',
   ASSESSMENT_REQUEST: 'Gutachten',
   GENERAL: 'Allgemein',
 };
@@ -20,7 +20,7 @@ async function getInquiries() {
   return prisma.inquiry.findMany({
     include: {
       user: { select: { username: true, email: true } },
-      listing: { select: { brand: true, model: true, year: true } },
+      listing: { select: { title: true, category: true } },
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -47,7 +47,7 @@ export default async function AdminInquiriesPage() {
                 </div>
                 {inq.listing && (
                   <p className="text-sm text-brand-cream font-body mb-1">
-                    {inq.listing.brand} {inq.listing.model} ({inq.listing.year})
+                    {inq.listing.title}
                   </p>
                 )}
                 <p className="text-sm text-brand-silver font-body line-clamp-2 mb-2">

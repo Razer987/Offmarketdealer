@@ -1,18 +1,15 @@
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { formatPrice } from '@/lib/utils/format';
-import { CONDITION_LABELS } from '@/lib/utils/constants';
+import { CATEGORY_LABELS } from '@/lib/utils/constants';
 
 interface ListingCardProps {
   id: string;
-  brand: string;
-  model: string;
-  year: number;
-  conditionRating: string;
+  title: string;
+  category: string;
   priceRangeMin?: number | null;
   priceRangeMax?: number | null;
   priceCurrency?: string;
-  mileageRange?: string | null;
   status: string;
   highlights?: string[];
 }
@@ -25,14 +22,11 @@ const statusBadge: Record<string, { variant: 'gold' | 'silver' | 'green' | 'red'
 
 export function ListingCard({
   id,
-  brand,
-  model,
-  year,
-  conditionRating,
+  title,
+  category,
   priceRangeMin,
   priceRangeMax,
   priceCurrency = 'EUR',
-  mileageRange,
   status,
   highlights = [],
 }: ListingCardProps) {
@@ -43,30 +37,17 @@ export function ListingCard({
       <div className="card-premium p-6 h-full flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-body uppercase tracking-widest text-brand-silver mb-1">
-              {year}
+            <p className="text-xs font-body uppercase tracking-widest text-brand-gold mb-1">
+              {CATEGORY_LABELS[category] ?? category}
             </p>
             <h3 className="font-display text-xl text-brand-cream group-hover:text-brand-gold transition-colors">
-              {brand} {model}
+              {title}
             </h3>
           </div>
           <Badge variant={badge.variant}>{badge.label}</Badge>
         </div>
 
         <div className="gold-divider" />
-
-        <div className="grid grid-cols-2 gap-3 text-xs font-body">
-          <div>
-            <p className="text-brand-silver uppercase tracking-widest mb-0.5">Zustand</p>
-            <p className="text-brand-cream">{CONDITION_LABELS[conditionRating] ?? conditionRating}</p>
-          </div>
-          {mileageRange && (
-            <div>
-              <p className="text-brand-silver uppercase tracking-widest mb-0.5">Laufleistung</p>
-              <p className="text-brand-cream">{mileageRange}</p>
-            </div>
-          )}
-        </div>
 
         {highlights.length > 0 && (
           <div className="flex flex-wrap gap-2">

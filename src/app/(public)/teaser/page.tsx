@@ -25,7 +25,7 @@ export default async function TeaserPage() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <p className="text-xs font-body uppercase tracking-[0.4em] text-brand-gold mb-4">
-            Aktuelle Fahrzeuge
+            Aktuelle Objekte
           </p>
           <h1 className="font-display text-4xl md:text-5xl text-brand-cream mb-4">
             Verfügbare Objekte
@@ -37,7 +37,7 @@ export default async function TeaserPage() {
 
         {listings.length === 0 ? (
           <div className="text-center py-24">
-            <p className="text-brand-silver font-body">Derzeit keine Fahrzeuge verfügbar.</p>
+            <p className="text-brand-silver font-body">Derzeit keine Objekte verfügbar.</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-border">

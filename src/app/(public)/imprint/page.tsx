@@ -34,8 +34,8 @@ export default function ImprintPage() {
           <section>
             <h2 className="font-display text-xl text-brand-cream mb-3">Haftungshinweis</h2>
             <p>
-              Die auf dieser Plattform angebotenen Fahrzeuge werden diskret vermittelt.
-              Der Betreiber tritt als Vermittler auf, nicht als Händler oder Eigentümer der Fahrzeuge.
+              Die auf dieser Plattform angebotenen Objekte werden diskret vermittelt.
+              Der Betreiber tritt als Vermittler auf, nicht als Händler oder Eigentümer der Objekte.
             </p>
           </section>
 

@@ -57,14 +57,12 @@ describe('validateInviteSchema', () => {
 
 describe('createListingSchema', () => {
   const valid = {
-    teaserTitle: 'Italienischer Sportwagen',
-    teaserDescription: 'Ein außergewöhnliches Fahrzeug aus den 80er Jahren.',
-    teaserImageUrl: '/teaser-images/generic-sports.jpg',
-    brand: 'Ferrari',
-    model: 'F40',
-    year: 1992,
-    conditionRating: 'EXCELLENT' as const,
-    generalDescription: 'Dieses Fahrzeug befindet sich in einem ausgezeichneten Zustand.',
+    teaserTitle: 'Exklusives Objekt im Angebot',
+    teaserDescription: 'Ein außergewöhnliches Objekt aus privatem Besitz.',
+    teaserImageUrl: '/teaser-images/generic.jpg',
+    category: 'VEHICLES' as const,
+    title: 'Ferrari F40 — 1992',
+    generalDescription: 'Dieses Objekt befindet sich in einem ausgezeichneten Zustand.',
     priceCurrency: 'EUR',
   };
 
@@ -72,19 +70,26 @@ describe('createListingSchema', () => {
     expect(() => createListingSchema.parse(valid)).not.toThrow();
   });
 
-  it('rejects a year before 1885', () => {
-    expect(() => createListingSchema.parse({ ...valid, year: 1800 })).toThrow();
+  it('rejects title shorter than 3 chars', () => {
+    expect(() => createListingSchema.parse({ ...valid, title: 'AB' })).toThrow();
   });
 
-  it('rejects invalid conditionRating', () => {
-    expect(() => createListingSchema.parse({ ...valid, conditionRating: 'PERFECT' })).toThrow();
+  it('rejects invalid category', () => {
+    expect(() => createListingSchema.parse({ ...valid, category: 'SPACESHIPS' })).toThrow();
+  });
+
+  it('accepts all valid categories', () => {
+    const categories = ['VEHICLES', 'REAL_ESTATE', 'WATCHES_JEWELRY', 'ART_ANTIQUES', 'YACHTS_BOATS', 'AIRCRAFT', 'BUSINESS_EQUITY', 'OTHER'] as const;
+    categories.forEach((category) => {
+      expect(() => createListingSchema.parse({ ...valid, category })).not.toThrow();
+    });
   });
 });
 
 describe('createInquirySchema', () => {
   const base = {
     type: 'GENERAL' as const,
-    message: 'Ich interessiere mich für dieses Fahrzeug und würde gerne mehr erfahren.',
+    message: 'Ich interessiere mich für dieses Objekt und würde gerne mehr erfahren.',
     preferredContact: 'EMAIL' as const,
   };
 

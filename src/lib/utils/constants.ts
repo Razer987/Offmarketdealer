@@ -29,15 +29,18 @@ export const USER_MAX_FAILED_ATTEMPTS = 5;
 
 export const PASSWORD_MIN_LENGTH = 12;
 
-export const APP_NAME = 'Off-Market Automobiles';
+export const APP_NAME = 'Arcanum';
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
-export const CONDITION_LABELS: Record<string, string> = {
-  CONCOURS: 'Concours-Zustand',
-  EXCELLENT: 'Ausgezeichnet',
-  VERY_GOOD: 'Sehr gut',
-  GOOD: 'Gut',
-  RESTORATION: 'Restaurationsobjekt',
+export const CATEGORY_LABELS: Record<string, string> = {
+  VEHICLES: 'Fahrzeuge',
+  REAL_ESTATE: 'Immobilien',
+  WATCHES_JEWELRY: 'Uhren & Schmuck',
+  ART_ANTIQUES: 'Kunst & Antiquitäten',
+  YACHTS_BOATS: 'Yachten & Boote',
+  AIRCRAFT: 'Luftfahrzeuge',
+  BUSINESS_EQUITY: 'Unternehmen & Beteiligungen',
+  OTHER: 'Sonstiges',
 };
 
 export const STATUS_LABELS: Record<string, string> = {

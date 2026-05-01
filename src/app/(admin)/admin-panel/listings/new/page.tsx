@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { createListingSchema, type CreateListingInput } from '@/lib/validation/schemas';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { CATEGORY_LABELS } from '@/lib/utils/constants';
 
 export default function NewListingPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function NewListingPage() {
       priceCurrency: 'EUR',
       status: 'DRAFT',
       highlights: [],
-      conditionRating: 'EXCELLENT',
+      category: 'VEHICLES',
     },
   });
 
@@ -75,30 +76,22 @@ export default function NewListingPage() {
           </div>
         </section>
 
-        {/* Vehicle details */}
+        {/* Inserat details */}
         <section>
           <h2 className="font-display text-xl text-brand-cream mb-6 pb-3 border-b border-brand-border">
-            Fahrzeugdaten (Mitglieder-sichtbar)
+            Inserat-Details (Mitglieder-sichtbar)
           </h2>
           <div className="grid grid-cols-2 gap-5">
-            <Input {...register('brand')} label="Marke" error={errors.brand?.message} />
-            <Input {...register('model')} label="Modell" error={errors.model?.message} />
-            <Input {...register('year', { valueAsNumber: true })} label="Baujahr" type="number" error={errors.year?.message} />
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-body uppercase tracking-widest text-brand-silver">Zustand</label>
-              <select {...register('conditionRating')} className="input-premium w-full rounded-none px-4 py-3 text-sm font-body">
-                <option value="CONCOURS">Concours-Zustand</option>
-                <option value="EXCELLENT">Ausgezeichnet</option>
-                <option value="VERY_GOOD">Sehr gut</option>
-                <option value="GOOD">Gut</option>
-                <option value="RESTORATION">Restaurationsobjekt</option>
+              <label className="text-xs font-body uppercase tracking-widest text-brand-silver">Kategorie</label>
+              <select {...register('category')} className="input-premium w-full rounded-none px-4 py-3 text-sm font-body">
+                {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
               </select>
+              {errors.category && <p className="text-xs text-red-400">{errors.category.message}</p>}
             </div>
-            <Input {...register('engineDisplacement', { valueAsNumber: true })} label="Hubraum (ccm)" type="number" error={errors.engineDisplacement?.message} />
-            <Input {...register('enginePower', { valueAsNumber: true })} label="Leistung (PS)" type="number" error={errors.enginePower?.message} />
-            <Input {...register('acceleration', { valueAsNumber: true })} label="0-100 km/h (s)" type="number" step="0.1" error={errors.acceleration?.message} />
-            <Input {...register('topSpeed', { valueAsNumber: true })} label="Vmax (km/h)" type="number" error={errors.topSpeed?.message} />
-            <Input {...register('mileageRange')} label="Laufleistung (Bereich)" placeholder="z.B. unter 50.000 km" error={errors.mileageRange?.message} />
+            <Input {...register('title')} label="Titel" error={errors.title?.message} />
             <Input {...register('priceRangeMin', { valueAsNumber: true })} label="Preis von (EUR)" type="number" error={errors.priceRangeMin?.message} />
             <Input {...register('priceRangeMax', { valueAsNumber: true })} label="Preis bis (EUR)" type="number" error={errors.priceRangeMax?.message} />
           </div>

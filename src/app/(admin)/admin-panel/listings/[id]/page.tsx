@@ -8,7 +8,7 @@ import { updateListingSchema, type UpdateListingInput } from '@/lib/validation/s
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
-import { STATUS_LABELS, CONDITION_LABELS } from '@/lib/utils/constants';
+import { STATUS_LABELS, CATEGORY_LABELS } from '@/lib/utils/constants';
 
 interface ListingImage {
   id: string;
@@ -19,18 +19,11 @@ interface ListingImage {
 
 interface Listing {
   id: string;
-  brand: string;
-  model: string;
-  year: number;
+  category: string;
+  title: string;
   teaserTitle: string;
   teaserDescription: string;
   teaserImageUrl: string;
-  engineDisplacement?: number | null;
-  enginePower?: number | null;
-  acceleration?: number | null;
-  topSpeed?: number | null;
-  mileageRange?: string | null;
-  conditionRating: string;
   priceRangeMin?: number | null;
   priceRangeMax?: number | null;
   priceCurrency: string;
@@ -80,15 +73,8 @@ export default function AdminListingEditPage() {
       teaserTitle: data.teaserTitle,
       teaserDescription: data.teaserDescription,
       teaserImageUrl: data.teaserImageUrl,
-      brand: data.brand,
-      model: data.model,
-      year: data.year,
-      engineDisplacement: data.engineDisplacement ?? undefined,
-      enginePower: data.enginePower ?? undefined,
-      acceleration: data.acceleration ?? undefined,
-      topSpeed: data.topSpeed ?? undefined,
-      mileageRange: data.mileageRange ?? undefined,
-      conditionRating: data.conditionRating as UpdateListingInput['conditionRating'],
+      category: data.category as UpdateListingInput['category'],
+      title: data.title,
       priceRangeMin: data.priceRangeMin ?? undefined,
       priceRangeMax: data.priceRangeMax ?? undefined,
       priceCurrency: data.priceCurrency,
@@ -160,9 +146,10 @@ export default function AdminListingEditPage() {
       <div className="flex items-start justify-between mb-10">
         <div>
           <h1 className="font-display text-3xl text-brand-cream">
-            {listing!.brand} {listing!.model} ({listing!.year})
+            {listing!.title}
           </h1>
           <div className="flex items-center gap-3 mt-2">
+            <Badge variant="gold">{CATEGORY_LABELS[listing!.category] ?? listing!.category}</Badge>
             <Badge variant={statusBadge[listing!.status] ?? 'silver'}>
               {STATUS_LABELS[listing!.status] ?? listing!.status}
             </Badge>
@@ -227,28 +214,21 @@ export default function AdminListingEditPage() {
           </div>
         </section>
 
-        {/* Vehicle details */}
+        {/* Inserat details */}
         <section>
           <h2 className="font-display text-xl text-brand-cream mb-6 pb-3 border-b border-brand-border">
-            Fahrzeugdaten
+            Inserat-Details
           </h2>
           <div className="grid grid-cols-2 gap-5">
-            <Input {...register('brand')} label="Marke" error={errors.brand?.message} />
-            <Input {...register('model')} label="Modell" error={errors.model?.message} />
-            <Input {...register('year', { valueAsNumber: true })} label="Baujahr" type="number" error={errors.year?.message} />
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-body uppercase tracking-widest text-brand-silver">Zustand</label>
-              <select {...register('conditionRating')} className="input-premium w-full rounded-none px-4 py-3 text-sm font-body">
-                {Object.entries(CONDITION_LABELS).map(([k, v]) => (
+              <label className="text-xs font-body uppercase tracking-widest text-brand-silver">Kategorie</label>
+              <select {...register('category')} className="input-premium w-full rounded-none px-4 py-3 text-sm font-body">
+                {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
               </select>
             </div>
-            <Input {...register('engineDisplacement', { valueAsNumber: true })} label="Hubraum (ccm)" type="number" error={errors.engineDisplacement?.message} />
-            <Input {...register('enginePower', { valueAsNumber: true })} label="Leistung (PS)" type="number" error={errors.enginePower?.message} />
-            <Input {...register('acceleration', { valueAsNumber: true })} label="0-100 km/h (s)" type="number" step="0.1" error={errors.acceleration?.message} />
-            <Input {...register('topSpeed', { valueAsNumber: true })} label="Vmax (km/h)" type="number" error={errors.topSpeed?.message} />
-            <Input {...register('mileageRange')} label="Laufleistung (Bereich)" error={errors.mileageRange?.message} />
+            <Input {...register('title')} label="Titel" error={errors.title?.message} />
             <Input {...register('priceRangeMin', { valueAsNumber: true })} label="Preis von (EUR)" type="number" error={errors.priceRangeMin?.message} />
             <Input {...register('priceRangeMax', { valueAsNumber: true })} label="Preis bis (EUR)" type="number" error={errors.priceRangeMax?.message} />
           </div>

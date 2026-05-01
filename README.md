@@ -1,7 +1,8 @@
-# Off-Market Automobiles
+# Arcanum
 
-Private Plattform für diskrete Vermittlung von exklusiven Fahrzeugen im Einladungsmodell.
-Entwickelt mit Next.js 14, PostgreSQL, Prisma und Tailwind CSS.
+Geschlossenes Off-Market-Netzwerk für außergewöhnliche Objekte (Fahrzeuge, Immobilien,
+Uhren, Kunst u.v.m.) im Einladungsmodell. Entwickelt mit Next.js 14, PostgreSQL, Prisma
+und Tailwind CSS.
 
 ---
 

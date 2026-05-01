@@ -56,7 +56,10 @@ export const createInviteSchema = z.object({
 
 // ─── Listings ──────────────────────────────────────────────────────────────────
 
-const conditionRatingEnum = z.enum(['CONCOURS', 'EXCELLENT', 'VERY_GOOD', 'GOOD', 'RESTORATION']);
+const listingCategoryEnum = z.enum([
+  'VEHICLES', 'REAL_ESTATE', 'WATCHES_JEWELRY', 'ART_ANTIQUES',
+  'YACHTS_BOATS', 'AIRCRAFT', 'BUSINESS_EQUITY', 'OTHER',
+]);
 const listingStatusEnum = z.enum(['DRAFT', 'ACTIVE', 'RESERVED', 'SOLD', 'WITHDRAWN']);
 
 export const createListingSchema = z.object({
@@ -64,17 +67,8 @@ export const createListingSchema = z.object({
   teaserDescription: z.string().min(20).max(1000),
   teaserImageUrl: z.string().min(1),
 
-  brand: z.string().min(1).max(100),
-  model: z.string().min(1).max(100),
-  year: z.number().int().min(1885).max(new Date().getFullYear() + 1),
-
-  engineDisplacement: z.number().int().positive().optional(),
-  enginePower: z.number().int().positive().optional(),
-  acceleration: z.number().positive().optional(),
-  topSpeed: z.number().int().positive().optional(),
-
-  mileageRange: z.string().max(100).optional(),
-  conditionRating: conditionRatingEnum,
+  category: listingCategoryEnum,
+  title: z.string().min(3).max(200),
 
   priceRangeMin: z.number().positive().optional(),
   priceRangeMax: z.number().positive().optional(),
@@ -92,11 +86,8 @@ export const createListingSchema = z.object({
 export const updateListingSchema = createListingSchema.partial();
 
 export const listingFiltersSchema = z.object({
-  brand: z.string().optional(),
-  yearMin: z.coerce.number().optional(),
-  yearMax: z.coerce.number().optional(),
+  category: listingCategoryEnum.optional(),
   priceMax: z.coerce.number().optional(),
-  condition: conditionRatingEnum.optional(),
   search: z.string().max(100).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(12),
@@ -110,12 +101,8 @@ const contactMethodEnum = z.enum(['EMAIL', 'PHONE', 'WHATSAPP']);
 export const createInquirySchema = z.object({
   type: inquiryTypeEnum,
   listingId: z.string().cuid().optional(),
-  vehicleBrand: z.string().max(100).optional(),
-  vehicleModel: z.string().max(100).optional(),
-  vehicleYear: z.number().int().min(1885).max(2030).optional(),
-  vehicleMileage: z.number().int().nonnegative().optional(),
-  vehicleVin: z.string().max(17).optional(),
-  vehicleLocation: z.string().max(200).optional(),
+  objectTitle: z.string().max(200).optional(),
+  objectDetails: z.string().max(500).optional(),
   message: z.string().min(20).max(5000),
   contactPhone: z
     .string()

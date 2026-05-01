@@ -20,7 +20,7 @@ log_error()   { echo -e "  ${RED}✖${RESET}  $1"; }
 clear
 echo -e "${BOLD}${CYAN}"
 echo "  ╔═══════════════════════════════════════════════════╗"
-echo "  ║       Off-Market Automobiles — Server Setup       ║"
+echo "  ║            Arcanum — Server Setup                 ║"
 echo "  ║            Ubuntu 22.04 LTS · Next.js 14          ║"
 echo "  ╚═══════════════════════════════════════════════════╝"
 echo -e "${RESET}"

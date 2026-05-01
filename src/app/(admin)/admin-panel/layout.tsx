@@ -50,7 +50,7 @@ export default async function AdminLayout({ children }: Props) {
       <aside className="w-64 border-r border-brand-border bg-brand-dark flex flex-col">
         <div className="px-6 py-6 border-b border-brand-border">
           <p className="text-xs font-body uppercase tracking-[0.4em] text-brand-gold">Admin</p>
-          <p className="font-display text-lg text-brand-cream mt-1">Off-Market</p>
+          <p className="font-display text-lg text-brand-cream mt-1">Arcanum</p>
         </div>
 
         <nav className="flex-1 px-4 py-6 flex flex-col gap-1">

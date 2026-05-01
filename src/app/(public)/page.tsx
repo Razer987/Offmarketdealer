@@ -16,7 +16,7 @@ export default function LandingPage() {
           <h1 className="font-display text-5xl md:text-7xl text-brand-cream leading-tight mb-6 animate-slide-up">
             Außergewöhnliche
             <br />
-            <span className="text-gold-gradient">Automobile</span>
+            <span className="text-gold-gradient">Objekte</span>
           </h1>
           <p className="text-lg text-brand-silver font-body mb-10 max-w-xl mx-auto leading-relaxed">
             Diskrete Transaktionen für anspruchsvolle Sammler und Investoren.
@@ -24,7 +24,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/teaser">
-              <Button size="lg">Fahrzeuge entdecken</Button>
+              <Button size="lg">Entdecken</Button>
             </Link>
             <Link href="/about">
               <Button variant="outline" size="lg">Mehr erfahren</Button>
@@ -48,11 +48,11 @@ export default function LandingPage() {
             {[
               {
                 title: 'Absolute Diskretion',
-                description: 'Anonyme Profile. Keine Fahrzeugfotos für Unbefugte. Alle Transaktionen laufen persönlich über uns.',
+                description: 'Anonyme Profile. Keine Fotos für Unbefugte. Alle Transaktionen laufen persönlich über uns.',
               },
               {
                 title: 'Kuratierte Auswahl',
-                description: 'Jedes Fahrzeug wird sorgfältig geprüft und dokumentiert. Nur außergewöhnliche Objekte finden Eingang.',
+                description: 'Jedes Objekt wird sorgfältig geprüft und dokumentiert. Nur außergewöhnliche Objekte finden Eingang.',
               },
               {
                 title: 'Persönliche Vermittlung',

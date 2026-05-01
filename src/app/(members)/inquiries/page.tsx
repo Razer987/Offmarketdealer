@@ -24,7 +24,7 @@ const statusLabel: Record<string, string> = {
 };
 
 const typeLabel: Record<string, string> = {
-  LISTING_INQUIRY: 'Fahrzeuganfrage',
+  LISTING_INQUIRY: 'Anfrage',
   ASSESSMENT_REQUEST: 'Gutachten-Auftrag',
   GENERAL: 'Allgemeine Anfrage',
 };
@@ -39,7 +39,7 @@ async function getInquiries() {
 
   return prisma.inquiry.findMany({
     where: { userId: session!.userId },
-    include: { listing: { select: { brand: true, model: true, year: true } } },
+    include: { listing: { select: { title: true, category: true } } },
     orderBy: { createdAt: 'desc' },
   });
 }
@@ -83,7 +83,7 @@ export default async function InquiriesPage() {
                     </div>
                     {inq.listing && (
                       <p className="text-sm text-brand-cream font-body">
-                        {inq.listing.brand} {inq.listing.model} ({inq.listing.year})
+                        {inq.listing.title}
                       </p>
                     )}
                     <p className="text-sm text-brand-silver font-body line-clamp-2">{inq.message}</p>

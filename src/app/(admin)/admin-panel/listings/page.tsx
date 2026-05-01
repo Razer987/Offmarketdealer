@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { formatDate } from '@/lib/utils/format';
-import { CONDITION_LABELS, STATUS_LABELS } from '@/lib/utils/constants';
+import { CATEGORY_LABELS, STATUS_LABELS } from '@/lib/utils/constants';
 
 async function getListings() {
   return prisma.listing.findMany({
@@ -36,9 +36,9 @@ export default async function AdminListingsPage() {
         <table className="w-full text-sm font-body">
           <thead>
             <tr className="border-b border-brand-border text-left">
-              <th className="pb-3 text-xs uppercase tracking-widest text-brand-silver font-normal pr-6">Fahrzeug</th>
+              <th className="pb-3 text-xs uppercase tracking-widest text-brand-silver font-normal pr-6">Objekt</th>
               <th className="pb-3 text-xs uppercase tracking-widest text-brand-silver font-normal pr-6">Status</th>
-              <th className="pb-3 text-xs uppercase tracking-widest text-brand-silver font-normal pr-6">Zustand</th>
+              <th className="pb-3 text-xs uppercase tracking-widest text-brand-silver font-normal pr-6">Kategorie</th>
               <th className="pb-3 text-xs uppercase tracking-widest text-brand-silver font-normal pr-6">Anfragen</th>
               <th className="pb-3 text-xs uppercase tracking-widest text-brand-silver font-normal pr-6">Aktualisiert</th>
               <th className="pb-3" />
@@ -48,8 +48,8 @@ export default async function AdminListingsPage() {
             {listings.map((l) => (
               <tr key={l.id} className="hover:bg-brand-charcoal/30 transition-colors">
                 <td className="py-4 pr-6">
-                  <p className="text-brand-cream">{l.brand} {l.model}</p>
-                  <p className="text-xs text-brand-silver">{l.year}</p>
+                  <p className="text-brand-cream">{l.title}</p>
+                  <p className="text-xs text-brand-silver">{CATEGORY_LABELS[l.category] ?? l.category}</p>
                 </td>
                 <td className="py-4 pr-6">
                   <Badge variant={statusBadge[l.status] ?? 'silver'}>
@@ -57,7 +57,7 @@ export default async function AdminListingsPage() {
                   </Badge>
                 </td>
                 <td className="py-4 pr-6 text-brand-silver">
-                  {CONDITION_LABELS[l.conditionRating] ?? l.conditionRating}
+                  {CATEGORY_LABELS[l.category] ?? l.category}
                 </td>
                 <td className="py-4 pr-6 text-brand-silver">{l._count.inquiries}</td>
                 <td className="py-4 pr-6 text-brand-silver">{formatDate(l.updatedAt)}</td>

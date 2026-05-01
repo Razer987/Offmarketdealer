@@ -141,18 +141,9 @@ model Listing {
   teaserDescription String  @db.Text
   teaserImageUrl    String
 
-  // Member data (visible with login) — NO concrete vehicle images
-  brand             String
-  model             String
-  year              Int
-
-  engineDisplacement Int?
-  enginePower        Int?
-  acceleration       Float?
-  topSpeed           Int?
-
-  mileageRange    String?
-  conditionRating ConditionRating
+  // Member data (visible with login) — NO concrete object images
+  category ListingCategory
+  title    String
 
   priceRangeMin Decimal? @db.Decimal(12, 2)
   priceRangeMax Decimal? @db.Decimal(12, 2)
@@ -179,16 +170,19 @@ model Listing {
   watchlistItems WatchlistItem[]
 
   @@index([status, publishedAt])
-  @@index([brand, model])
+  @@index([category])
   @@map("listings")
 }
 
-enum ConditionRating {
-  CONCOURS
-  EXCELLENT
-  VERY_GOOD
-  GOOD
-  RESTORATION
+enum ListingCategory {
+  VEHICLES
+  REAL_ESTATE
+  WATCHES_JEWELRY
+  ART_ANTIQUES
+  YACHTS_BOATS
+  AIRCRAFT
+  BUSINESS_EQUITY
+  OTHER
 }
 
 enum ListingStatus {
@@ -231,12 +225,8 @@ model Inquiry {
   listingId String?
   listing   Listing? @relation(fields: [listingId], references: [id])
 
-  vehicleBrand    String?
-  vehicleModel    String?
-  vehicleYear     Int?
-  vehicleMileage  Int?
-  vehicleVin      String?
-  vehicleLocation String?
+  objectTitle    String?
+  objectDetails  String?
 
   message          String        @db.Text
   contactPhone     String?

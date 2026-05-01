@@ -6,14 +6,11 @@ async function getListings() {
     where: { status: { in: ['ACTIVE', 'RESERVED'] } },
     select: {
       id: true,
-      brand: true,
-      model: true,
-      year: true,
-      conditionRating: true,
+      title: true,
+      category: true,
       priceRangeMin: true,
       priceRangeMax: true,
       priceCurrency: true,
-      mileageRange: true,
       highlights: true,
       status: true,
     },
@@ -31,12 +28,12 @@ export default async function ListingsPage() {
           <p className="text-xs font-body uppercase tracking-[0.4em] text-brand-gold mb-3">
             Mitglieder-Bereich
           </p>
-          <h1 className="font-display text-4xl text-brand-cream">Verfügbare Fahrzeuge</h1>
+          <h1 className="font-display text-4xl text-brand-cream">Verfügbare Objekte</h1>
         </div>
 
         {listings.length === 0 ? (
           <div className="text-center py-24 border border-brand-border">
-            <p className="text-brand-silver font-body">Derzeit keine Fahrzeuge verfügbar.</p>
+            <p className="text-brand-silver font-body">Derzeit keine Objekte verfügbar.</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-border">

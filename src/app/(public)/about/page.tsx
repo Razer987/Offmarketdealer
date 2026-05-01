@@ -16,18 +16,19 @@ export default function AboutPage() {
           <section>
             <h2 className="font-display text-2xl text-brand-cream mb-4">Unser Ansatz</h2>
             <p>
-              Off-Market Automobiles ist ein privater Marktplatz für außergewöhnliche Fahrzeuge —
-              Sammlerautos, Klassiker und Luxusfahrzeuge, die abseits des öffentlichen Marktes
+              Arcanum ist ein geschlossenes Off-Market-Netzwerk für außergewöhnliche Objekte —
+              Fahrzeuge, Immobilien, Uhren, Kunst und mehr, die abseits des öffentlichen Marktes
               gehandelt werden. Diskretion ist dabei keine Option, sondern Grundprinzip.
             </p>
           </section>
 
           <section>
-            <h2 className="font-display text-2xl text-brand-cream mb-4">Der Auftraggeber</h2>
+            <h2 className="font-display text-2xl text-brand-cream mb-4">Der Vermittler</h2>
             <p>
-              Hinter dieser Plattform steht ein öffentlich bestellter und vereidigter Kfz-Sachverständiger
-              mit jahrzehntelanger Erfahrung in der Bewertung exklusiver Fahrzeuge. Jedes Fahrzeug wird
-              vor der Aufnahme in den Marktplatz einer eingehenden Prüfung unterzogen.
+              Hinter diesem Netzwerk steht ein öffentlich bestellter und vereidigter Sachverständiger
+              mit jahrzehntelanger Erfahrung in der Bewertung exklusiver Objekte. Jedes Inserat wird
+              vor der Aufnahme einer eingehenden Prüfung unterzogen. Nur der Vermittler kennt
+              alle Beteiligten — Käufer und Verkäufer bleiben einander unbekannt.
             </p>
           </section>
 
@@ -37,7 +38,7 @@ export default function AboutPage() {
               {[
                 { n: '01', t: 'Einladung', d: 'Zugang nur über persönlichen Einladungscode. Kein öffentlicher Zugang.' },
                 { n: '02', t: 'Anonymes Profil', d: 'Automatisch generierter Username. Keine echten Namen sichtbar.' },
-                { n: '03', t: 'Diskrete Listings', d: 'Technische Daten und Preisspannen — keine identifizierenden Fahrzeugfotos.' },
+                { n: '03', t: 'Diskrete Listings', d: 'Beschreibungen und Preisspannen — keine identifizierenden Fotos.' },
                 { n: '04', t: 'Persönlicher Kontakt', d: 'Alle Anfragen laufen über den Vermittler. Käufer und Verkäufer bleiben anonym.' },
               ].map((step) => (
                 <div key={step.n} className="flex gap-6 items-start">
