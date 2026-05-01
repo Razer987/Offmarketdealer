@@ -70,6 +70,25 @@ function Wait-ForPostgres([string]$pgBin, [string]$superPass, [int]$maxSec = 60)
     return $false
 }
 
+function Find-PgBin {
+    # Versionen der Reihe nach pruefen
+    foreach ($v in @(17, 16, 15, 14)) {
+        $p = "C:\Program Files\PostgreSQL\$v\bin"
+        if (Test-Path "$p\psql.exe") { return $p }
+    }
+    # Registry-Suche
+    try {
+        Get-ChildItem "HKLM:\SOFTWARE\PostgreSQL\Installations" -ErrorAction Stop | ForEach-Object {
+            $base = (Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue).Base
+            if ($base -and (Test-Path "$base\bin\psql.exe")) { return "$base\bin" }
+        }
+    } catch {}
+    # PATH-Suche
+    $cmd = Get-Command psql.exe -ErrorAction SilentlyContinue
+    if ($cmd) { return Split-Path $cmd.Source }
+    return $null
+}
+
 # ── Hauptlogik (try/finally damit Fenster nie sofort schliesst) ────────────────
 
 try {
@@ -207,27 +226,50 @@ try {
 
     # ── PostgreSQL installieren ────────────────────────────────────────────────
 
-    Write-Section "3/4 -- PostgreSQL 16"
+    Write-Section "3/4 -- PostgreSQL"
 
-    $PG_BIN = "C:\Program Files\PostgreSQL\16\bin"
+    $PG_BIN = Find-PgBin
 
-    if (Test-Path "$PG_BIN\psql.exe") {
-        Write-OK "PostgreSQL bereits installiert"
+    if ($PG_BIN) {
+        Write-OK "PostgreSQL bereits installiert: $PG_BIN"
     } else {
-        Write-Info "Installiere PostgreSQL 16 (dauert ca. 2-3 Minuten)..."
-        Write-Info "Superuser-Passwort wird automatisch auf gesetzt: $PG_SUPER_PW"
+        Write-Info "Installiere PostgreSQL via winget (dauert ca. 2-3 Minuten)..."
+        Write-Host ""
+        Write-Host "  WICHTIG: Der Installer wird sich oeffnen." -ForegroundColor Yellow
+        Write-Host "  Bitte waehle bei 'Password' folgendes Passwort:" -ForegroundColor Yellow
+        Write-Host "  $PG_SUPER_PW" -ForegroundColor White
+        Write-Host "  (wird auch in ZUGANGSDATEN.txt gespeichert)" -ForegroundColor Yellow
+        Write-Host ""
+        Read-Host "  Enter druecken wenn bereit -- dann startet der Installer"
 
         winget install --id PostgreSQL.PostgreSQL.16 `
-            --accept-package-agreements --accept-source-agreements `
-            --override "--mode unattended --superpassword `"$PG_SUPER_PW`" --serverport 5432 --prefix `"C:\Program Files\PostgreSQL\16`" --datadir `"C:\Program Files\PostgreSQL\16\data`""
+            --accept-package-agreements --accept-source-agreements
 
         Refresh-EnvPath
+        Start-Sleep -Seconds 3
 
-        if (-not (Test-Path "$PG_BIN\psql.exe")) {
-            Write-Err "PostgreSQL wurde installiert aber psql.exe nicht gefunden unter $PG_BIN. Bitte PostgreSQL manuell installieren und Skript erneut starten."
+        $PG_BIN = Find-PgBin
+        if (-not $PG_BIN) {
+            Write-Host ""
+            Write-Host "  psql.exe wurde nicht automatisch gefunden." -ForegroundColor Yellow
+            Write-Host "  Bitte den vollstaendigen Pfad zum PostgreSQL bin-Ordner eingeben." -ForegroundColor Yellow
+            Write-Host "  Beispiel: C:\Program Files\PostgreSQL\16\bin" -ForegroundColor Gray
+            $PG_BIN = (Read-Host "  Pfad").Trim().Trim('"')
+            if (-not (Test-Path "$PG_BIN\psql.exe")) {
+                Write-Err "psql.exe nicht unter '$PG_BIN' gefunden. Bitte PostgreSQL korrekt installieren."
+            }
         }
-        Write-OK "PostgreSQL 16 installiert"
+        Write-OK "PostgreSQL gefunden: $PG_BIN"
     }
+
+    # Postgres-Superuser-Passwort abfragen (kann nicht zuverlaessig automatisch gesetzt werden)
+    Write-Host ""
+    Write-Host "  Bitte das PostgreSQL Superuser-Passwort eingeben." -ForegroundColor Cyan
+    Write-Host "  (Das Passwort das du beim PostgreSQL-Installer gesetzt hast)" -ForegroundColor Gray
+    Write-Host "  Wenn du unser Vorschlag-Passwort genommen hast: $PG_SUPER_PW" -ForegroundColor Gray
+    $pgPwdSec = Read-Host "  postgres Passwort" -AsSecureString
+    $PG_SUPER_PW = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgPwdSec))
 
     # Dienst starten falls noetig
     $pgService = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -238,7 +280,7 @@ try {
         }
         Write-OK "PostgreSQL-Dienst laeuft ($($pgService.Name))"
     } else {
-        Write-Warn "PostgreSQL-Dienst nicht automatisch gefunden -- versuche trotzdem fortzufahren."
+        Write-Warn "PostgreSQL-Dienst nicht gefunden -- versuche fortzufahren."
     }
 
     # ── Datenbank & Benutzer anlegen ───────────────────────────────────────────
@@ -248,7 +290,7 @@ try {
     Write-Info "Warte auf PostgreSQL-Bereitschaft..."
     $env:PGPASSWORD = $PG_SUPER_PW
     if (-not (Wait-ForPostgres -pgBin $PG_BIN -superPass $PG_SUPER_PW)) {
-        Write-Err "PostgreSQL antwortet nicht nach 60 Sekunden. Bitte Dienst manuell starten (Dienste-App > postgresql-x64-16 > Starten) und Skript erneut ausfuehren."
+        Write-Err "PostgreSQL antwortet nicht nach 60 Sekunden. Bitte Dienst manuell starten: Start > Dienste > postgresql* > Starten"
     }
     Write-OK "PostgreSQL bereit"
 
