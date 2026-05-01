@@ -176,8 +176,17 @@ try {
         winget install --id OpenJS.NodeJS.LTS `
             --accept-package-agreements --accept-source-agreements --silent
         Refresh-EnvPath
-        $nodeVer = node -v 2>$null
-        Write-OK "Node.js $nodeVer installiert"
+
+        # winget-PATH-Aenderungen gelten erst in neuer Session -- Node.js-Pfad direkt eintragen
+        $nodePath = "C:\Program Files\nodejs"
+        if ((Test-Path "$nodePath\node.exe") -and ($env:Path -notlike "*nodejs*")) {
+            $env:Path = "$nodePath;" + $env:Path
+        }
+
+        if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+            Write-Err "Node.js wurde installiert, ist aber nicht erreichbar. Bitte PowerShell-Fenster schliessen, neu als Administrator oeffnen und Skript erneut starten."
+        }
+        Write-OK "Node.js $(node -v) installiert"
     } else {
         Refresh-EnvPath
     }
