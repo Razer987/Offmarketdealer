@@ -60,14 +60,18 @@ function New-RandomBase64([int]$byteCount) {
 }
 
 function Wait-ForPostgres([string]$pgBin, [string]$superPass, [int]$maxSec = 60) {
-    $env:PGPASSWORD = $superPass
     $deadline = (Get-Date).AddSeconds($maxSec)
     while ((Get-Date) -lt $deadline) {
-        & "$pgBin\pg_isready.exe" -U postgres 2>&1 | Out-Null
+        & "$pgBin\pg_isready.exe" -U postgres -h localhost 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) { return $true }
         Start-Sleep -Seconds 2
     }
     return $false
+}
+
+# psql mit Passwort im Verbindungsstring ausfuehren (umgeht PGPASSWORD-Problem auf Windows)
+function Invoke-Psql([string]$psql, [string]$connStr, [string]$sql) {
+    return & $psql $connStr -tAc $sql 2>&1
 }
 
 function Find-PgBin {
@@ -288,34 +292,34 @@ try {
     Write-Section "4/4 -- Datenbank einrichten"
 
     Write-Info "Warte auf PostgreSQL-Bereitschaft..."
-    $env:PGPASSWORD = $PG_SUPER_PW
     if (-not (Wait-ForPostgres -pgBin $PG_BIN -superPass $PG_SUPER_PW)) {
         Write-Err "PostgreSQL antwortet nicht nach 60 Sekunden. Bitte Dienst manuell starten: Start > Dienste > postgresql* > Starten"
     }
     Write-OK "PostgreSQL bereit"
 
-    $psql = "$PG_BIN\psql.exe"
-    $env:PGPASSWORD = $PG_SUPER_PW
+    $psql   = "$PG_BIN\psql.exe"
+    # Passwort direkt im URI -- umgeht PGPASSWORD-Problem auf Windows
+    $pgUri  = "postgresql://postgres:$PG_SUPER_PW@localhost:5432/postgres"
 
-    $dbExists = (& $psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" 2>$null).Trim()
+    $dbExists = (Invoke-Psql $psql $pgUri "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'").Trim()
     if ($dbExists -ne '1') {
-        & $psql -U postgres -c "CREATE DATABASE $DB_NAME;" | Out-Null
+        & $psql $pgUri -c "CREATE DATABASE $DB_NAME;" | Out-Null
         Write-OK "Datenbank '$DB_NAME' erstellt"
     } else {
         Write-OK "Datenbank '$DB_NAME' bereits vorhanden"
     }
 
-    $userExists = (& $psql -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>$null).Trim()
+    $userExists = (Invoke-Psql $psql $pgUri "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'").Trim()
     if ($userExists -ne '1') {
-        & $psql -U postgres -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
+        & $psql $pgUri -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
         Write-OK "Benutzer '$DB_USER' erstellt"
     } else {
-        & $psql -U postgres -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
+        & $psql $pgUri -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
         Write-OK "Benutzer '$DB_USER' aktualisiert"
     }
 
-    & $psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" | Out-Null
-    & $psql -U postgres -c "ALTER DATABASE $DB_NAME OWNER TO $DB_USER;" | Out-Null
+    & $psql $pgUri -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" | Out-Null
+    & $psql $pgUri -c "ALTER DATABASE $DB_NAME OWNER TO $DB_USER;" | Out-Null
     Write-OK "Berechtigungen gesetzt"
 
     # ── Repository klonen ──────────────────────────────────────────────────────
