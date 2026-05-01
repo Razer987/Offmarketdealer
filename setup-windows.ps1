@@ -70,8 +70,65 @@ function Wait-ForPostgres([string]$pgBin, [string]$superPass, [int]$maxSec = 60)
 }
 
 # psql mit Passwort im Verbindungsstring ausfuehren (umgeht PGPASSWORD-Problem auf Windows)
+# Lange Optionsformen vermeiden PowerShell-Argumentparser-Probleme
 function Invoke-Psql([string]$psql, [string]$connStr, [string]$sql) {
-    return & $psql $connStr -t -A -c $sql 2>&1
+    return & $psql "--dbname=$connStr" "--tuples-only" "--no-align" "--command=$sql" 2>&1
+}
+
+# postgres-Passwort per pg_hba.conf-Trust-Methode zuruecksetzen (kein altes Passwort noetig)
+function Reset-PgPassword([string]$pgBin, [string]$newPassword) {
+    # Datenverzeichnis ermitteln (liegt eine Ebene ueber bin/)
+    $pgBase = Split-Path $pgBin -Parent
+    $dataDir = Join-Path $pgBase "data"
+    if (-not (Test-Path "$dataDir\pg_hba.conf")) {
+        # Fallback: alle PostgreSQL-Versionen durchsuchen
+        foreach ($v in @(17,16,15,14)) {
+            $try = "C:\Program Files\PostgreSQL\$v\data"
+            if (Test-Path "$try\pg_hba.conf") { $dataDir = $try; break }
+        }
+    }
+    if (-not (Test-Path "$dataDir\pg_hba.conf")) {
+        Write-Err "pg_hba.conf nicht gefunden. Bitte PostgreSQL-Datenverzeichnis manuell angeben oder PostgreSQL neu installieren."
+    }
+
+    $hbaPath   = "$dataDir\pg_hba.conf"
+    $hbaBackup = "$dataDir\pg_hba.conf.bak_setup"
+
+    Write-Info "Sicherung von pg_hba.conf..."
+    Copy-Item $hbaPath $hbaBackup -Force
+
+    # Trust-Zeilen an den Anfang einfuegen -- postgres-User lokal ohne Passwort erlauben
+    $trustLines = @(
+        "# TEMP trust -- von setup-windows.ps1 gesetzt, wird wiederhergestellt",
+        "host    all             postgres        127.0.0.1/32            trust",
+        "host    all             postgres        ::1/128                 trust"
+    )
+    $original = Get-Content $hbaPath
+    ($trustLines + $original) | Set-Content $hbaPath -Encoding UTF8
+
+    Write-Info "PostgreSQL-Dienst neu starten..."
+    $svc = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $svc) { Write-Err "PostgreSQL-Dienst nicht gefunden." }
+    Restart-Service $svc.Name -Force -ErrorAction Stop
+    Start-Sleep -Seconds 6
+
+    Write-Info "Neues Passwort setzen..."
+    $psqlExe = "$pgBin\psql.exe"
+    $out = & $psqlExe -h 127.0.0.1 -U postgres -w "--command=ALTER USER postgres WITH PASSWORD '$newPassword';" 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        # Konfiguration wiederherstellen und dann Fehler melden
+        Copy-Item $hbaBackup $hbaPath -Force
+        Restart-Service $svc.Name -Force
+        Write-Err "Passwort konnte nicht gesetzt werden: $out"
+    }
+
+    Write-Info "pg_hba.conf wiederherstellen..."
+    Copy-Item $hbaBackup $hbaPath -Force
+    Remove-Item $hbaBackup -Force
+    Restart-Service $svc.Name -Force
+    Start-Sleep -Seconds 6
+
+    Write-OK "postgres-Passwort erfolgreich zurueckgesetzt"
 }
 
 function Find-PgBin {
@@ -236,13 +293,27 @@ try {
 
     if ($PG_BIN) {
         Write-OK "PostgreSQL bereits installiert: $PG_BIN"
-        # Passwort des bestehenden postgres-Superusers abfragen
         Write-Host ""
         Write-Host "  PostgreSQL ist bereits installiert." -ForegroundColor Cyan
-        Write-Host "  Bitte das Passwort des postgres-Superusers eingeben:" -ForegroundColor Cyan
-        $pgPwdSec = Read-Host "  postgres Passwort" -AsSecureString
-        $PG_SUPER_PW = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
-            [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgPwdSec))
+        Write-Host ""
+        Write-Host "  [1] Ich kenne mein postgres-Passwort" -ForegroundColor White
+        Write-Host "  [2] Passwort vergessen / automatisch zuruecksetzen" -ForegroundColor White
+        Write-Host ""
+        $pgChoice = ""
+        while ($pgChoice -ne '1' -and $pgChoice -ne '2') {
+            $pgChoice = (Read-Host "  Bitte 1 oder 2 eingeben").Trim()
+        }
+
+        if ($pgChoice -eq '2') {
+            Write-Host ""
+            Write-Info "Passwort wird automatisch zurueckgesetzt..."
+            Write-Info "Neues Superuser-Passwort: $PG_SUPER_PW (wird in ZUGANGSDATEN.txt gespeichert)"
+            Reset-PgPassword -pgBin $PG_BIN -newPassword $PG_SUPER_PW
+        } else {
+            $pgPwdSec = Read-Host "  postgres Passwort" -AsSecureString
+            $PG_SUPER_PW = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+                [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgPwdSec))
+        }
     } else {
         Write-Info "Installiere PostgreSQL via winget (automatisch, ca. 2-3 Minuten)..."
         Write-Info "Superuser-Passwort wird automatisch gesetzt auf: $PG_SUPER_PW"
@@ -299,7 +370,7 @@ try {
 
     $dbExists = (Invoke-Psql $psql $pgUri "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'").Trim()
     if ($dbExists -ne '1') {
-        & $psql $pgUri -c "CREATE DATABASE $DB_NAME;" | Out-Null
+        & $psql "--dbname=$pgUri" "--command=CREATE DATABASE $DB_NAME;" | Out-Null
         Write-OK "Datenbank '$DB_NAME' erstellt"
     } else {
         Write-OK "Datenbank '$DB_NAME' bereits vorhanden"
@@ -307,15 +378,15 @@ try {
 
     $userExists = (Invoke-Psql $psql $pgUri "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'").Trim()
     if ($userExists -ne '1') {
-        & $psql $pgUri -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
+        & $psql "--dbname=$pgUri" "--command=CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
         Write-OK "Benutzer '$DB_USER' erstellt"
     } else {
-        & $psql $pgUri -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
+        & $psql "--dbname=$pgUri" "--command=ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';" | Out-Null
         Write-OK "Benutzer '$DB_USER' aktualisiert"
     }
 
-    & $psql $pgUri -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" | Out-Null
-    & $psql $pgUri -c "ALTER DATABASE $DB_NAME OWNER TO $DB_USER;" | Out-Null
+    & $psql "--dbname=$pgUri" "--command=GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" | Out-Null
+    & $psql "--dbname=$pgUri" "--command=ALTER DATABASE $DB_NAME OWNER TO $DB_USER;" | Out-Null
     Write-OK "Berechtigungen gesetzt"
 
     # ── Repository klonen ──────────────────────────────────────────────────────
