@@ -71,7 +71,7 @@ function Wait-ForPostgres([string]$pgBin, [string]$superPass, [int]$maxSec = 60)
 
 # psql mit Passwort im Verbindungsstring ausfuehren (umgeht PGPASSWORD-Problem auf Windows)
 function Invoke-Psql([string]$psql, [string]$connStr, [string]$sql) {
-    return & $psql $connStr -tAc $sql 2>&1
+    return & $psql $connStr -t -A -c $sql 2>&1
 }
 
 function Find-PgBin {
@@ -236,44 +236,40 @@ try {
 
     if ($PG_BIN) {
         Write-OK "PostgreSQL bereits installiert: $PG_BIN"
+        # Passwort des bestehenden postgres-Superusers abfragen
+        Write-Host ""
+        Write-Host "  PostgreSQL ist bereits installiert." -ForegroundColor Cyan
+        Write-Host "  Bitte das Passwort des postgres-Superusers eingeben:" -ForegroundColor Cyan
+        $pgPwdSec = Read-Host "  postgres Passwort" -AsSecureString
+        $PG_SUPER_PW = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+            [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgPwdSec))
     } else {
-        Write-Info "Installiere PostgreSQL via winget (dauert ca. 2-3 Minuten)..."
-        Write-Host ""
-        Write-Host "  WICHTIG: Der Installer wird sich oeffnen." -ForegroundColor Yellow
-        Write-Host "  Bitte waehle bei 'Password' folgendes Passwort:" -ForegroundColor Yellow
-        Write-Host "  $PG_SUPER_PW" -ForegroundColor White
-        Write-Host "  (wird auch in ZUGANGSDATEN.txt gespeichert)" -ForegroundColor Yellow
-        Write-Host ""
-        Read-Host "  Enter druecken wenn bereit -- dann startet der Installer"
+        Write-Info "Installiere PostgreSQL via winget (automatisch, ca. 2-3 Minuten)..."
+        Write-Info "Superuser-Passwort wird automatisch gesetzt auf: $PG_SUPER_PW"
 
+        # Stiller Install mit automatischem Passwort (EDB-Installer unattended mode)
+        $overrideArgs = "--mode unattended --superpassword `"$PG_SUPER_PW`" --serverport 5432"
         winget install --id PostgreSQL.PostgreSQL.16 `
-            --accept-package-agreements --accept-source-agreements
+            --accept-package-agreements --accept-source-agreements `
+            --override $overrideArgs
 
         Refresh-EnvPath
-        Start-Sleep -Seconds 3
+        Write-Info "Warte auf PostgreSQL-Start..."
+        Start-Sleep -Seconds 8
 
         $PG_BIN = Find-PgBin
         if (-not $PG_BIN) {
             Write-Host ""
-            Write-Host "  psql.exe wurde nicht automatisch gefunden." -ForegroundColor Yellow
+            Write-Warn "psql.exe nicht automatisch gefunden."
             Write-Host "  Bitte den vollstaendigen Pfad zum PostgreSQL bin-Ordner eingeben." -ForegroundColor Yellow
             Write-Host "  Beispiel: C:\Program Files\PostgreSQL\16\bin" -ForegroundColor Gray
             $PG_BIN = (Read-Host "  Pfad").Trim().Trim('"')
             if (-not (Test-Path "$PG_BIN\psql.exe")) {
-                Write-Err "psql.exe nicht unter '$PG_BIN' gefunden. Bitte PostgreSQL korrekt installieren."
+                Write-Err "psql.exe nicht unter '$PG_BIN' gefunden."
             }
         }
-        Write-OK "PostgreSQL gefunden: $PG_BIN"
+        Write-OK "PostgreSQL installiert: $PG_BIN"
     }
-
-    # Postgres-Superuser-Passwort abfragen (kann nicht zuverlaessig automatisch gesetzt werden)
-    Write-Host ""
-    Write-Host "  Bitte das PostgreSQL Superuser-Passwort eingeben." -ForegroundColor Cyan
-    Write-Host "  (Das Passwort das du beim PostgreSQL-Installer gesetzt hast)" -ForegroundColor Gray
-    Write-Host "  Wenn du unser Vorschlag-Passwort genommen hast: $PG_SUPER_PW" -ForegroundColor Gray
-    $pgPwdSec = Read-Host "  postgres Passwort" -AsSecureString
-    $PG_SUPER_PW = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
-        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgPwdSec))
 
     # Dienst starten falls noetig
     $pgService = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
