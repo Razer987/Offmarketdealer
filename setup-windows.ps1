@@ -17,7 +17,7 @@ function Write-Banner {
     Write-Host ""
     Write-Host "  +==================================================+" -ForegroundColor Cyan
     Write-Host "  |    Off-Market Automobiles -- Windows Setup       |" -ForegroundColor Cyan
-    Write-Host "  |    Ziel: E:\KI_Off-Market_Dealer                 |" -ForegroundColor Cyan
+    Write-Host "  |    Ziel: C:\Users\Test\Desktop\KI_Off-Market_Dealer |" -ForegroundColor Cyan
     Write-Host "  +==================================================+" -ForegroundColor Cyan
     Write-Host ""
 }
@@ -129,7 +129,7 @@ try {
 
     # ── Secrets & Pfade ────────────────────────────────────────────────────────
 
-    $BASE_DIR    = "E:\KI_Off-Market_Dealer"
+    $BASE_DIR    = "C:\Users\Test\Desktop\KI_Off-Market_Dealer"
     $APP_DIR     = "$BASE_DIR\app"
     $UPLOAD_DIR  = "$BASE_DIR\uploads"
     $REPO_URL    = "https://github.com/razer987/offmarketdealer.git"
