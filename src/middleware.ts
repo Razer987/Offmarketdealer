@@ -57,8 +57,10 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
+// ADMIN_PATH_SECRET is the full path segment, e.g. "admin-panel" → "/admin-panel/..."
+// Change in .env and rename the route group folder for production deployments.
 function isAdminPath(pathname: string): boolean {
-  return pathname.startsWith(`/admin-${ADMIN_PATH_SECRET}`);
+  return pathname.startsWith(`/${ADMIN_PATH_SECRET}`);
 }
 
 function isAdminApiPath(pathname: string): boolean {
@@ -83,10 +85,10 @@ export function middleware(request: NextRequest) {
     return addSecurityHeaders(NextResponse.next());
   }
 
-  // Admin paths — require admin token
+  // Admin paths — require admin token (login page is public)
   if (isAdminPath(pathname) || isAdminApiPath(pathname)) {
-    const adminLoginPath = `/admin-${ADMIN_PATH_SECRET}/login`;
-    if (pathname === adminLoginPath) {
+    const adminLoginPath = `/${ADMIN_PATH_SECRET}/login`;
+    if (pathname === adminLoginPath || pathname.startsWith(`${adminLoginPath}/`)) {
       return addSecurityHeaders(NextResponse.next());
     }
     const adminToken = request.cookies.get(COOKIE_ADMIN_TOKEN);
