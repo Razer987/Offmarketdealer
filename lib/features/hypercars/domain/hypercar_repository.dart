@@ -1,7 +1,7 @@
 import 'hypercar.dart';
 import 'hypercar_status.dart';
 
-еnum SortField { name, price, date }
+enum SortField { name, price, date }
 
 class HypercarFilter {
   const HypercarFilter({
