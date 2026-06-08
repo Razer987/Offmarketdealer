@@ -1,47 +1,43 @@
-# Dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-
-# Production
-/build
-
-# Misc
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
 .DS_Store
-*.pem
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
 
-# Local env files — NEVER COMMIT!
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
 
-# Vercel
-.vercel
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
 
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
+# Symbolication related
+app.*.symbols
 
-# Prisma
-prisma/*.db
-prisma/*.db-journal
+# Obfuscation related
+app.*.map.json
 
-# Uploads (never commit real uploads)
-uploads/
-
-# PM2
-ecosystem.config.js.bak
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
