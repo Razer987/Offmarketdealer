@@ -13,6 +13,9 @@ part 'app_database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  // Used by tests so we can pass an in-memory executor
+  AppDatabase.forTesting(QueryExecutor executor) : super(executor);
+
   @override
   int get schemaVersion => 1;
 
@@ -20,7 +23,7 @@ class AppDatabase extends _$AppDatabase {
     return driftDatabase(name: 'apex_garage_db');
   }
 
-  // ── Watch all with filter ──────────────────────────────────────────────────
+  // Watch all with filter
   Stream<List<HypercarData>> watchFiltered(HypercarFilter filter) {
     var query = select(hypercars);
 
@@ -78,7 +81,7 @@ class AppDatabase extends _$AppDatabase {
     return query.watch();
   }
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
+  // Stats
   Future<Map<String, dynamic>> getStats() async {
     final count = await (selectOnly(hypercars)
           ..addColumns([hypercars.id.count()]))
@@ -94,12 +97,10 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-// Provider so DI works cleanly via Riverpod
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   throw UnimplementedError('Override in ProviderScope');
 });
 
-// Extension to map Drift rows to domain entities
 extension HypercarDataMapper on HypercarData {
   Hypercar toDomain() {
     final paths = (jsonDecode(photoPaths) as List).cast<String>();
